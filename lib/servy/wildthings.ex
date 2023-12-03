@@ -1,19 +1,41 @@
 defmodule Servy.Wildthings do
   alias Servy.Bear
 
+  @db_path Path.expand("db", File.cwd!())
+
   def list_bears do
-    [
-      %Bear{id: 1, name: "Teddy", type: "Brown", hibernating: true},
-      %Bear{id: 2, name: "Smokey", type: "Black"},
-      %Bear{id: 3, name: "Paddington", type: "Brown"},
-      %Bear{id: 4, name: "Scarface", type: "Grizzly", hibernating: true},
-      %Bear{id: 5, name: "Snow", type: "Polar"},
-      %Bear{id: 6, name: "Brutus", type: "Grizzly"},
-      %Bear{id: 7, name: "Rosie", type: "Black", hibernating: true},
-      %Bear{id: 8, name: "Roscoe", type: "Panda"},
-      %Bear{id: 9, name: "Iceman", type: "Polar", hibernating: true},
-      %Bear{id: 10, name: "Kenai", type: "Grizzly"}
-    ]
+    @db_path
+    |> Path.join("bears.json")
+    |> read_json
+    |> Jason.decode!()
+    |> Map.get("bears")
+    |> Enum.map(&create_bear_changeset/1)
+  end
+
+  defp read_json(source) do
+    case File.read(source) do
+      {:ok, contents} ->
+        contents
+      {:error, reason} ->
+        IO.inspect "Error reading #{source}: #{reason}"
+        "[]"
+    end
+  end
+
+  defp create_bear_changeset(bear_data) do
+    {:ok, bear} =
+      %Bear{}
+      |> Bear.changeset(bear_data)
+      |> apply_changeset()
+
+    bear
+  end
+
+  defp apply_changeset(changeset) do
+    case changeset.valid? do
+      true -> {:ok, Ecto.Changeset.apply_changes(changeset)}
+      false -> {:error, changeset}
+    end
   end
 
   def get_bear(id) when is_integer(id) do
