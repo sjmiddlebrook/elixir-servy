@@ -1,16 +1,7 @@
 defmodule Servy.BearController do
   alias Servy.Wildthings
 
-  @templates_path Path.expand("templates", File.cwd!())
-
-  defp render(conv, template, bindings \\ []) do
-    content =
-      @templates_path
-      |> Path.join(template)
-      |> EEx.eval_file(bindings)
-
-    %{conv | status: 200, resp_body: content}
-  end
+  import Servy.View, only: [render: 3]
 
   def index(conv) do
     bears =
@@ -34,7 +25,7 @@ defmodule Servy.BearController do
     %{
       conv
       | status: 201,
-        resp_body: "Created a #{type} bear with the name #{name}!"
+        resp_body: "Created a #{type} bear named #{name}!"
     }
   end
 end
