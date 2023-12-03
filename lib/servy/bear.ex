@@ -1,4 +1,5 @@
 defmodule Servy.Bear do
+  @derive {Jason.Encoder, only: [:id, :name, :type, :hibernating]}
   defstruct id: nil,
             name: "",
             type: "",

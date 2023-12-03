@@ -1,5 +1,5 @@
 defmodule HandlerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   import Servy.Handler, only: [handle: 1]
 
@@ -174,6 +174,109 @@ defmodule HandlerTest do
            \r
            Created a Brown bear named Baloo!
            """
+  end
+
+  test "DELETE /bears/1" do
+    request = """
+    DELETE /bears/1 HTTP/1.1\r
+    Host: example.com\r
+    User-Agent: ExampleBrowser/1.0\r
+    Accept: */*\r
+    \r
+    """
+
+    response = handle(request)
+
+    assert response == """
+           HTTP/1.1 403 Forbidden\r
+           Content-Type: text/html\r
+           Content-Length: 29\r
+           \r
+           Deleting a bear is forbidden!
+           """
+  end
+
+  test "GET /api/bears" do
+    request = """
+    GET /api/bears HTTP/1.1\r
+    Host: example.com\r
+    User-Agent: ExampleBrowser/1.0\r
+    Accept: */*\r
+    \r
+    """
+
+    response = handle(request)
+
+    expected_response = """
+    HTTP/1.1 200 OK\r
+    Content-Type: application/json\r
+    Content-Length: 605\r
+    \r
+    [
+      {
+          "id": 1,
+          "name": "Teddy",
+          "type": "Brown",
+          "hibernating": true
+      },
+      {
+          "id": 2,
+          "name": "Smokey",
+          "type": "Black",
+          "hibernating": false
+      },
+      {
+          "id": 3,
+          "name": "Paddington",
+          "type": "Brown",
+          "hibernating": false
+      },
+      {
+          "id": 4,
+          "name": "Scarface",
+          "type": "Grizzly",
+          "hibernating": true
+      },
+      {
+          "id": 5,
+          "name": "Snow",
+          "type": "Polar",
+          "hibernating": false
+      },
+      {
+          "id": 6,
+          "name": "Brutus",
+          "type": "Grizzly",
+          "hibernating": false
+      },
+      {
+          "id": 7,
+          "name": "Rosie",
+          "type": "Black",
+          "hibernating": true
+      },
+      {
+          "id": 8,
+          "name": "Roscoe",
+          "type": "Panda",
+          "hibernating": false
+      },
+      {
+          "id": 9,
+          "name": "Iceman",
+          "type": "Polar",
+          "hibernating": true
+      },
+      {
+          "id": 10,
+          "name": "Kenai",
+          "type": "Grizzly",
+          "hibernating": false
+      }
+    ]
+    """
+
+    assert remove_whitespace(response) == remove_whitespace(expected_response)
   end
 
   defp remove_whitespace(text) do
