@@ -7,6 +7,7 @@ defmodule Servy.Handler do
 
   @pages_path Path.expand("pages", File.cwd!())
 
+  import Servy.Conv, only: [put_content_length: 1, full_status: 1, format_response_headers: 1]
   import Servy.Plugins, only: [track: 1, rewrite_path: 1, log: 1]
   import Servy.Parser, only: [parse: 1]
   import Servy.FileHandler, only: [handle_file: 2]
@@ -19,6 +20,7 @@ defmodule Servy.Handler do
     |> log
     |> route
     |> track
+    |> put_content_length
     |> format_response
   end
 
@@ -68,9 +70,8 @@ defmodule Servy.Handler do
 
   def format_response(%Conv{} = conv) do
     """
-    HTTP/1.1 #{Conv.full_status(conv)}\r
-    Content-Type: #{conv.resp_content_type}\r
-    Content-Length: #{byte_size(conv.resp_body)}\r
+    HTTP/1.1 #{full_status(conv)}\r
+    #{format_response_headers(conv)}\r
     \r
     #{conv.resp_body}
     """
