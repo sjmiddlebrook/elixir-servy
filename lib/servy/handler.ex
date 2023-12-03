@@ -10,7 +10,7 @@ defmodule Servy.Handler do
   import Servy.Conv, only: [put_content_length: 1, full_status: 1, format_response_headers: 1]
   import Servy.Plugins, only: [track: 1, rewrite_path: 1, log: 1]
   import Servy.Parser, only: [parse: 1]
-  import Servy.FileHandler, only: [handle_file: 2]
+  import Servy.FileHandler, only: [handle_file: 2, handle_markdown_file: 2]
 
   @doc "Transforms the request into a response."
   def handle(request) do
@@ -61,15 +61,32 @@ defmodule Servy.Handler do
     route_pages(conv, "about.html")
   end
 
+  def route(%Conv{method: "GET", path: "/faq"} = conv) do
+    route_pages(conv, "faq.md")
+  end
+
   def route(%Conv{} = conv) do
     %{conv | status: 404, resp_body: "No #{conv.path} here!"}
   end
 
   def route_pages(%Conv{} = conv, file_name) do
+    file_type = Path.extname(file_name)
+    IO.puts(file_type)
+    route_pages(conv, file_name, file_type)
+  end
+
+  def route_pages(%Conv{} = conv, file_name, ".html") do
     @pages_path
     |> Path.join(file_name)
     |> File.read()
     |> handle_file(conv)
+  end
+
+  def route_pages(%Conv{} = conv, file_name, ".md") do
+    @pages_path
+    |> Path.join(file_name)
+    |> File.read()
+    |> handle_markdown_file(conv)
   end
 
   def format_response(%Conv{} = conv) do
