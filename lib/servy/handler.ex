@@ -17,7 +17,7 @@ defmodule Servy.Handler do
     request
     |> parse
     |> rewrite_path
-    |> log
+    # |> log
     |> route
     |> track
     |> put_content_length
@@ -65,13 +65,22 @@ defmodule Servy.Handler do
     route_pages(conv, "faq.md")
   end
 
+  def route(%Conv{method: "GET", path: "/hibernate/" <> time} = conv) do
+    time |> String.to_integer() |> :timer.sleep()
+
+    %{conv | status: 200, resp_body: "Awake!"}
+  end
+
+  def route(%Conv{method: "GET", path: "/kaboom"} = _conv) do
+    raise "Kaboom!"
+  end
+
   def route(%Conv{} = conv) do
     %{conv | status: 404, resp_body: "No #{conv.path} here!"}
   end
 
   def route_pages(%Conv{} = conv, file_name) do
     file_type = Path.extname(file_name)
-    IO.puts(file_type)
     route_pages(conv, file_name, file_type)
   end
 
