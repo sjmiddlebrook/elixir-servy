@@ -31,7 +31,8 @@ defmodule Servy.MixProject do
       {:earmark, "~> 1.4"},
       {:jason, "~> 1.4"},
       {:ecto_sql, "~> 3.0"},
-      {:postgrex, ">= 0.0.0"}
+      {:postgrex, ">= 0.0.0"},
+      {:req, "~> 0.4.5"}
     ]
   end
 end

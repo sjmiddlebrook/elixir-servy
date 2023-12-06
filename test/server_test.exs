@@ -5,24 +5,32 @@ defmodule HttpServerTest do
   alias Servy.HttpClient
 
   test "accepts a request on a socket and sends back a response" do
-    spawn(HttpServer, :start, [4000])
+    spawn(HttpServer, :start, [4040])
 
-    request = """
-    GET /wildthings HTTP/1.1\r
-    Host: example.com\r
-    User-Agent: ExampleBrowser/1.0\r
-    Accept: */*\r
-    \r
-    """
+    response = Req.get!("http://localhost:4040/wildthings")
 
-    response = HttpClient.send_request(request)
+    assert response.status == 200
+    assert response.body == "Bears, Lions, Tigers"
+  end
 
-    assert response == """
-           HTTP/1.1 200 OK\r
-           Content-Type: text/html\r
-           Content-Length: 20\r
-           \r
-           Bears, Lions, Tigers
-           """
+  test "accepts a request on a socket and sends back a response concurrently" do
+    spawn(HttpServer, :start, [4040])
+    parent = self()
+    max_concurrent_requests = 5
+
+    for _ <- 1..max_concurrent_requests do
+      spawn(fn ->
+        response = Req.get!("http://localhost:4040/wildthings")
+        send(parent, {:ok, response})
+      end)
+    end
+
+    for _ <- 1..max_concurrent_requests do
+      receive do
+        {:ok, response} ->
+          assert response.status == 200
+          assert response.body == "Bears, Lions, Tigers"
+      end
+    end
   end
 end
