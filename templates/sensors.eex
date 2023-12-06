@@ -1,0 +1,10 @@
+<h1>Sensors</h1>
+
+<h2>Big Foot location</h2>
+<p>Big Foot is located at <%= bigfoot.lat %> - <%= bigfoot.lng %></p>
+
+<ul>
+<%= for snapshot <- snapshots do %>
+  <li><img src="<%= snapshot %>" alt="snapshot"></li>
+<% end %>
+</ul>

@@ -18,19 +18,15 @@ defmodule HttpServerTest do
     parent = self()
     max_concurrent_requests = 5
 
-    for _ <- 1..max_concurrent_requests do
-      spawn(fn ->
-        response = Req.get!("http://localhost:4040/wildthings")
-        send(parent, {:ok, response})
+    results =
+      ["/wildthings", "/bears", "/bears/new", "/bears/1", "/bears/2"]
+      |> Enum.map(fn path ->
+        url = "http://localhost:4040#{path}"
+        Task.async(Req, :get, [url])
       end)
-    end
-
-    for _ <- 1..max_concurrent_requests do
-      receive do
-        {:ok, response} ->
-          assert response.status == 200
-          assert response.body == "Bears, Lions, Tigers"
-      end
-    end
+      |> Enum.map(&Task.await(&1))
+      |> Enum.each(fn {:ok, response} ->
+        assert response.status == 200
+      end)
   end
 end
