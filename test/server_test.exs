@@ -14,14 +14,14 @@ defmodule HttpServerTest do
   end
 
   test "accepts a request on a socket and sends back a response concurrently" do
-    spawn(HttpServer, :start, [4040])
+    spawn(HttpServer, :start, [4041])
     parent = self()
     max_concurrent_requests = 5
 
     results =
       ["/wildthings", "/bears", "/bears/new", "/bears/1", "/bears/2"]
       |> Enum.map(fn path ->
-        url = "http://localhost:4040#{path}"
+        url = "http://localhost:4041#{path}"
         Task.async(Req, :get, [url])
       end)
       |> Enum.map(&Task.await(&1))

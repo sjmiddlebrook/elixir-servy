@@ -10,7 +10,7 @@ defmodule Servy.Handler do
   @pages_path Path.expand("pages", File.cwd!())
 
   import Servy.Conv, only: [put_content_length: 1, full_status: 1, format_response_headers: 1]
-  import Servy.Plugins, only: [track: 1, rewrite_path: 1, log: 1]
+  import Servy.Plugins, only: [track: 1, rewrite_path: 1]
   import Servy.Parser, only: [parse: 1]
   import Servy.FileHandler, only: [handle_file: 2, handle_markdown_file: 2]
   import Servy.View, only: [render: 3]
@@ -89,6 +89,14 @@ defmodule Servy.Handler do
     bigfoot_result = Task.await(task)
 
     render(conv, "sensors.eex", snapshots: snapshots, bigfoot: bigfoot_result)
+  end
+
+  def route(%Conv{method: "POST", path: "/pledges"} = conv) do
+    Servy.PledgeController.create(conv, conv.params)
+  end
+
+  def route(%Conv{method: "GET", path: "/pledges"} = conv) do
+    Servy.PledgeController.index(conv)
   end
 
   def route(%Conv{} = conv) do
