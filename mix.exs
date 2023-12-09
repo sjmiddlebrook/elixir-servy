@@ -4,6 +4,7 @@ defmodule Servy.MixProject do
   def project do
     [
       app: :servy,
+      description: "A web server written in Elixir",
       version: "0.1.0",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
@@ -19,7 +20,9 @@ defmodule Servy.MixProject do
         :wx,
         :observer,
         :runtime_tools
-      ]
+      ],
+      mod: {Servy, []},
+      env: [port: 3040]
     ]
   end
 

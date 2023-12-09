@@ -33,8 +33,8 @@ defmodule Servy.KickStarter do
     if Mix.env() != :test do
       IO.puts("Starting HTTP server...")
     end
-
-    server_pid = spawn_link(Servy.HttpServer, :start, [4000])
+    port = Application.get_env(:servy, :port)
+    server_pid = spawn_link(Servy.HttpServer, :start, [port])
     Process.register(server_pid, :http_server)
     server_pid
   end
