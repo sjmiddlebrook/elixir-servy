@@ -3,12 +3,16 @@ defmodule Servy.FourOhFourCounter do
 
   use GenServer
 
-  def start(initial_state \\ %{}) do
+  def start_link(_args) do
     if Mix.env() != :test do
       IO.puts("\nStarting 404 counter server")
     end
+    initial_state = %{}
+    GenServer.start_link(__MODULE__, initial_state, name: @name)
+  end
 
-    GenServer.start(__MODULE__, initial_state, name: @name)
+  def init(init_arg) do
+    {:ok, init_arg}
   end
 
   def bump_count(path) do

@@ -10,7 +10,7 @@ defmodule PledgeServerTest do
   # end
 
   test "server caches 3 most recent pledges" do
-    PledgeServer.start()
+    PledgeServer.start_link([])
 
     PledgeServer.create_pledge("larry", 10)
     PledgeServer.create_pledge("moe", 20)

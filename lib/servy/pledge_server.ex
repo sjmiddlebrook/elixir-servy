@@ -9,12 +9,12 @@ defmodule Servy.PledgeServer do
 
   # Client Interface Functions
 
-  def start() do
+  def start_link(_arg) do
     if Mix.env() != :test do
-      IO.puts("Starting #{__MODULE__}")
+      IO.puts("Starting pledge server...")
     end
 
-    GenServer.start(__MODULE__, %State{}, name: @name)
+    GenServer.start_link(__MODULE__, %State{}, name: @name)
   end
 
   def set_cache_size(cache_size) do
@@ -41,7 +41,7 @@ defmodule Servy.PledgeServer do
 
   def init(state) do
     pledges = fetch_recent_pledges_from_service()
-    new_state = %{ state | pledges: pledges }
+    new_state = %{state | pledges: pledges}
     {:ok, new_state}
   end
 

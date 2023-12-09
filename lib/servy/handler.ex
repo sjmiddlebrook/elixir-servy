@@ -2,10 +2,8 @@ defmodule Servy.Handler do
   @moduledoc """
   This module handles the request and response.
   """
-  alias Servy.VideoCam
   alias Servy.Conv
   alias Servy.BearController
-  alias Servy.VideoCam
 
   @pages_path Path.expand("pages", File.cwd!())
 
