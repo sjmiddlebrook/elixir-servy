@@ -4,6 +4,6 @@ defmodule Servy.VideoCam do
     # simulate wait
     :timer.sleep(1000)
     # example response
-    "#{camera_name}-snapshot.jpg"
+    "#{camera_name}-snapshot-#{:rand.uniform(1000)}.jpg"
   end
 end
