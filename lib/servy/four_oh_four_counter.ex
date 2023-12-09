@@ -5,35 +5,41 @@ defmodule Servy.FourOhFourCounter do
     if Mix.env() != :test do
       IO.puts("\nStarting 404 counter server")
     end
+
     pid = spawn(@name, :listen_loop, [initial_state])
     Process.register(pid, @name)
     pid
   end
 
   def bump_count(path) do
-    send(@name, {:bump_count, path})
+    send(@name, {self(), :bump_count, path})
+
+    receive do
+      {:response, count} -> count
+    end
   end
 
   def get_count(path) do
     send(@name, {self(), :get_count, path})
+
     receive do
-      {:response, count} ->
-        count
+      {:response, count} -> count
     end
   end
 
   def get_counts() do
     send(@name, {self(), :get_counts})
+
     receive do
-      {:response, counts} ->
-        counts
+      {:response, counts} -> counts
     end
   end
 
   def listen_loop(state) do
     receive do
-      {:bump_count, path} ->
+      {sender, :bump_count, path} ->
         new_state = Map.update(state, path, 1, &(&1 + 1))
+        send(sender, {:response, Map.get(new_state, path)})
         listen_loop(new_state)
 
       {sender, :get_count, path} ->

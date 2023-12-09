@@ -2,6 +2,7 @@ require Logger
 
 defmodule Servy.Plugins do
   alias Servy.Conv
+  alias Servy.FourOhFourCounter, as: Counter
 
   @doc """
   This function is called when the request is not found.
@@ -9,6 +10,7 @@ defmodule Servy.Plugins do
   def track(%Conv{status: 404, path: path} = conv) do
     if Mix.env() != :test do
       Logger.warning("!! Warning: #{path}")
+      Counter.bump_count(path)
     end
     conv
   end
